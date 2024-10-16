@@ -8,12 +8,10 @@
 import UIKit
 
 class ViewController: UIViewController {
+    private var bluetoothHIDManager: BluetoothHIDManager!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        bluetoothHIDManager = BluetoothHIDManager()
     }
-
-
 }
-

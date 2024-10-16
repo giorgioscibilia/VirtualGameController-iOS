@@ -21,5 +21,7 @@
 			</array>
 		</dict>
 	</dict>
+        <key>NSBluetoothAlwaysUsageDescription</key>
+        <string>We need Bluetooth access to connect to game controllers.</string>
 </dict>
 </plist>
