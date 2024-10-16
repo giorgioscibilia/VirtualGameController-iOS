@@ -5,7 +5,6 @@
 //  Created by Giorgio Scibilia on 16/10/2024.
 //
 
-
 import CoreBluetooth
 
 class BluetoothHIDManager: NSObject, CBPeripheralManagerDelegate {
@@ -18,7 +17,7 @@ class BluetoothHIDManager: NSObject, CBPeripheralManagerDelegate {
     }
     
     func startAdvertising() {
-        let advertisementData = [CBAdvertisementDataLocalNameKey: "iPhone Gamepad"]
+        let advertisementData = [CBAdvertisementDataLocalNameKey: "iPhone Gamepad", CBAdvertisementDataServiceUUIDsKey: [CBUUID(string: "1812")]] as [String : Any]
         peripheralManager.startAdvertising(advertisementData)
     }
     
@@ -36,14 +35,38 @@ class BluetoothHIDManager: NSObject, CBPeripheralManagerDelegate {
         )
         hidService.characteristics = [hidInformationCharacteristic]
         peripheralManager.add(hidService)
+        print("HID Service and Characteristics added.")
     }
     
     func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
         if peripheral.state == .poweredOn {
+            print("Bluetooth is powered on.")
             setupHIDService()
             startAdvertising()
         } else {
+            print("Bluetooth is not powered on.")
             stopAdvertising()
         }
+    }
+
+    // Methods for gamepad controls
+    func sendButtonPress(button: UInt8) {
+        let report: [UInt8] = [0x01, button]
+        sendHIDReport(report: report)
+    }
+
+    func sendDpadMove(direction: UInt8) {
+        let report: [UInt8] = [0x02, direction]
+        sendHIDReport(report: report)
+    }
+
+    private func sendHIDReport(report: [UInt8]) {
+        guard let hidReportCharacteristic = hidService.characteristics?.first else {
+            print("HID Report Characteristic not found.")
+            return
+        }
+        let data = Data(report)
+        peripheralManager.updateValue(data, for: hidReportCharacteristic as! CBMutableCharacteristic, onSubscribedCentrals: nil)
+        print("HID Report sent: \(report)")
     }
 }
